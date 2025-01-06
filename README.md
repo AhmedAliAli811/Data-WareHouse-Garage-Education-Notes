@@ -67,3 +67,21 @@
     * How this product interact with other entities in the database. 
     
     * **The programmers’ design this level based on business knowledge and the requirements.** 
+    
+   
+   
+* **View Level (Highest Level , External)** 
+    
+   1. It Views the stored data.
+   2. It's the final interface for the user     
+   
+  * **Important Example**
+  
+    Database contains product information.
+    
+    The View layer Shows: 
+    
+    * It could be designed to show the sales of the product in a specific region.     
+    
+    * We might hide information about some products based on the teams or users. 
+    
