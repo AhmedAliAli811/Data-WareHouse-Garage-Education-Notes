@@ -1,54 +1,12 @@
-# Data Warehouse and Modeling Notes
+# Data Warehouse Notes
 * All notes taken from the [Big Data Engineering in depth Course](https://youtube.com/playlist?list=PLxNoJq6k39G_m6DYjpz-V92DkaQEiXxkF&si=kw2CJj5jUw2oNcej)  
-
 
 ## Chapter One: Data Management 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-****Data Management**** : The process of collecting, organizing, protecting, and storing an organization's data so it can be analyzed for business decisions.  
+****Data Management****: The process of collecting, organizing, protecting, and storing an organization's data so it can be analyzed for business decisions.  
 
 **Data Management Life Cycle**
+
 ![Data Management Life Cycle](Images/Data%20Management%20Cycle.png)
 1. **Idea**: The service you have to provide or the problem you have to solve. 
 2. **Identify**: Obtain all data sources and identify their types.
@@ -59,3 +17,32 @@
 7. **Business Intelligence BI**: Data Analysis, Reporting or Discovery
 8. **Integration**: How the data will integrate with other teams and how we will publish it.
 9. **Archiving**: How will we archive data after a long time and what is the retention policy?
+
+
+****Data Abstraction**** : The process of hiding irrelevant details from layer to another layer.
+
+* ex. DBMS hides some information from the developers and the developers hide some information from the end user. 
+
+* There are 3 layers of Data Abstraction.
+    
+   1. Physical Level
+   2. Logical/Conceptual Level.
+   3. View Level.
+   
+   ![Data Layers](Images/Data%20Layers.png)
+* **Physical Level (Lowest Level , Internal)** 
+    
+   1. It describes How data is stored also describes data structure.
+   2. Allows you to modify the physical part without any change in the logical schema.
+   
+  * **Important Example**
+  
+    Database contains product information.
+    
+    The physical layer describes: 
+    
+    * The storage mechanism and blocks (bytes, gigabytes, terabytes, etc.).     
+    
+    * The amount of memory used. 
+    
+    * **This layer is usually abstracted from programmers.** 
