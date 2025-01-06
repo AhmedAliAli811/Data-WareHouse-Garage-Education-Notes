@@ -32,7 +32,7 @@
    ![Data Layers](Images/Data%20Layers.png)
 * **Physical Level (Lowest Level , Internal)** 
     
-   1. It describes How data is stored also describes data structure.
+   1. It describes **How** data is stored also describes data structure.
    2. Allows you to modify the physical part without any change in the logical schema.
    
   * **Important Example**
@@ -46,3 +46,24 @@
     * The amount of memory used. 
     
     * **This layer is usually abstracted from programmers.** 
+    
+    
+   
+    
+   
+* **Logical Level (Intermediate Level , Conceptual)** 
+    
+   1. It describes **What** data is stored also describes the relationship between tables.
+   2. Allows you to change the logical view without altering the external view.
+   
+  * **Important Example**
+  
+    Database contains product information.
+    
+    The Logical layer describes: 
+    
+    * The product fields and their data types.     
+    
+    * How this product interact with other entities in the database. 
+    
+    * **The programmers’ design this level based on business knowledge and the requirements.** 
