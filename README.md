@@ -1,6 +1,9 @@
 # Data Warehouse Notes
 * All notes taken from the [Big Data Engineering in depth Course](https://youtube.com/playlist?list=PLxNoJq6k39G_m6DYjpz-V92DkaQEiXxkF&si=kw2CJj5jUw2oNcej)  
 
+****Table of Content****
+
+[[_TOC_]]
 
 
 ## Chapter One: Data Management 
@@ -87,7 +90,8 @@ Data Abstraction is The process of hiding irrelevant details from layer to anoth
  
  
  
-## Chapter Two: Intro to Data Warehouse 
+## Chapter Two: Data Warehouse Components
+ 
 
 Some challenges are facing the people who work on data management backend.
 * Performance.
@@ -118,16 +122,78 @@ Some Important Facts About DWH
 | Data Model | Relational | Star Schema or Multi-dim |
 | Intelligence | Reporting | Advanced reporting and Machine Learning |
 | Use Cases | Online transactions & operations | Centralized storage (360°) |
+  
+ 
+### Types of Data Warehouse
+
+1. **Enterprise Data Warehouse (EDWH) For batch**: It provides decision support service across the enterprise. It offers a unified approach for organizing and representing data (DWH Model). It offers data classifications according to the subject with privileges policy.  
+  
+2. **Operational Data Store (ODS) for Real Time**: is a central database that provides an up-to-date (real-time) data from multiple transnational systems for operational reporting into a single DWH.
+3. **Data Mart (Subset of Date Warehouse)**:: A data mart is a subset of the data warehouse. It specially designed for a particular line of business, such as sales, finance, sales or finance. In an independent data mart, data can collect directly from sources.  
 
 
 
+| Metric | DWH | ODS | Data Mart |
+|:--------:|:-----:|:-----:|:-----------:|
+| Latency | Day -1 | Real-time | Day -1  |
+| Data level | Transnational | Transnational | Summary |
+| Historical | Long-term | Snapshot | Aggregated Long-Term |
+| Size | TB/PB | GB | GB/TB | 
+| Orientation | Multi sources | Multi sources | Product |
+| Business Units | Multi organizational units | Product team | Business team |
+
+### Multi-temperature Storage
+#### What is the multi-temperature data management model?
+It is a data classification design which allows us to have the following characteristics:  
+   * (high performance) access on the frequent data **(Hot data)**. 
+   * Good (average performance) access to less-frequently data **(warm data)**.
+   * Availability to access rarely accessed data **(cold data)**.
+
+#### Why do we need the multi-temperature data management model?
+* Cost reduction. 
+* Performance.
+
+#### How to implement the multi-temperature data management model?  
+
+Before implementation, we need to know the following Question's Answers: 
+1. What is the Frequency of access ?
+2. What is the Data change rate?
+
+Then Identify which storage type is suitable for the project 
+* **Hot data** stored on the fast storage system.
+* **Warm data** (usual) stored on slightly slower storage.
+* **Cold data** stored on the slowest storage.
+
+#### What is DWH Characteristics?
+* Integrated: DWH is an integrated environment which allows us to integrate different source systems.
+
+* Time-Variant: Data modeled (organized) based on periods (hourly, daily, weekly, monthly, quarterly, yearly).
+
+* Subject-oriented: DWH main target is to support business needs for the whole organization including (decision-makers, departments, and specific user requirements).
+
+* Non-Volatile: It refers to the data that erased or deleted (It could be archived and retrieved when needed).
 
 
+#### Data WareHouse Architecture 
 
 
+![](Images/DWH%20Arch.png)
 
+DWH architecture contains the following layers:
+1. **Source System Layer**: This layer consists of various data sources, such as databases, applications, and external systems, that provide raw data to the data warehouse.
 
+2. **Extraction Layer**: This layer handles the process of retrieving data from the source systems and preparing it for further processing.
 
+3. **Staging Area**: A temporary storage area where extracted data is cleaned, validated, and transformed before being loaded into the data warehouse.
 
+4. **Data Modeling**: This layer involves designing the data structure, including schemas and relationships, to optimize data organization and retrieval.
 
+5. **ETL Layer**: The Extract, Transform, Load (ETL) layer processes data by extracting it from sources, transforming it as per business rules, and loading it into the warehouse.
 
+6. **Storage Layer**: The storage layer is where the processed and structured data is securely stored for analysis and reporting purposes.
+
+7. **Reporting (UI) Layer**: This layer provides tools and interfaces for users to visualize, query, and analyze the data in the warehouse.
+
+8. **Metadata Layer**: The metadata layer stores information about the data's structure, sources, transformations, and usage to enable efficient management and understanding of the warehouse.
+
+9. **System Operations Layer**: This layer oversees the operational aspects of the data warehouse, including monitoring, scheduling, and maintaining system performance.
