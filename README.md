@@ -3,6 +3,7 @@
 
 ****Table of Content****
 
+
 * [Chapter One: Data Management](#chapter-one-data-management)
 	* [What is Data Management ?](#what-is-data-management-)
 	* [Data Management Life Cycle](#data-management-life-cycle)
@@ -20,6 +21,9 @@
 		* [How to implement the multi-temperature data management model?](#how-to-implement-the-multi-temperature-data-management-model)
 		* [What is DWH Characteristics?](#what-is-dwh-characteristics)
 		* [Data WareHouse Architecture](#data-warehouse-architecture)
+
+
+
 
 
 
