@@ -19,8 +19,8 @@
 		* [What is the multi-temperature data management model?](#what-is-the-multi-temperature-data-management-model)
 		* [Why do we need the multi-temperature data management model?](#why-do-we-need-the-multi-temperature-data-management-model)
 		* [How to implement the multi-temperature data management model?](#how-to-implement-the-multi-temperature-data-management-model)
-		* [What is DWH Characteristics?](#what-is-dwh-characteristics)
-		* [Data WareHouse Architecture](#data-warehouse-architecture)
+	* [What is DWH Characteristics?](#what-is-dwh-characteristics)
+	* [Data WareHouse Architecture](#data-warehouse-architecture)
 
 
 
@@ -190,7 +190,7 @@ Then Identify which storage type is suitable for the project
 * **Warm data** (usual) stored on slightly slower storage.
 * **Cold data** stored on the slowest storage.
 
-#### What is DWH Characteristics?
+### What is DWH Characteristics?
 * Integrated: DWH is an integrated environment which allows us to integrate different source systems.
 
 * Time-Variant: Data modeled (organized) based on periods (hourly, daily, weekly, monthly, quarterly, yearly).
@@ -200,7 +200,7 @@ Then Identify which storage type is suitable for the project
 * Non-Volatile: It refers to the data that erased or deleted (It could be archived and retrieved when needed).
 
 
-#### Data WareHouse Architecture 
+### Data WareHouse Architecture 
 
 
 ![](Images/DWH%20Arch.png)
