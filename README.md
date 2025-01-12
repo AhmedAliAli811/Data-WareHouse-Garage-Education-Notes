@@ -3,7 +3,29 @@
 
 ****Table of Content****
 
-[[_TOC_]]
+* [Chapter One: Data Management](#chapter-one-data-management)
+	* [What is Data Management ?](#what-is-data-management-)
+	* [Data Management Life Cycle](#data-management-life-cycle)
+	* [What is Data Abstraction?](#what-is-data-abstraction)
+		* [Physical Level (Lowest Level , Internal)](#physical-level-lowest-level--internal)
+		* [Logical Level (Intermediate Level , Conceptual)](#logical-level-intermediate-level--conceptual)
+		* [View Level (Highest Level , External)](#view-level-highest-level--external)
+* [Chapter Two: Data Warehouse Components](#chapter-two-data-warehouse-components)
+	* [What is Data Warehousing?](#what-is-data-warehousing)
+	* [Transactions DB VS Data WareHouse](#transactions-db-vs-data-warehouse)
+	* [Types of Data Warehouse](#types-of-data-warehouse)
+	* [Multi-temperature Storage](#multi-temperature-storage)
+		* [What is the multi-temperature data management model?](#what-is-the-multi-temperature-data-management-model)
+		* [Why do we need the multi-temperature data management model?](#why-do-we-need-the-multi-temperature-data-management-model)
+		* [How to implement the multi-temperature data management model?](#how-to-implement-the-multi-temperature-data-management-model)
+		* [What is DWH Characteristics?](#what-is-dwh-characteristics)
+		* [Data WareHouse Architecture](#data-warehouse-architecture)
+
+
+
+
+
+
 
 
 ## Chapter One: Data Management 
