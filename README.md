@@ -4,6 +4,10 @@
 ****Table of Content****
 
 
+
+
+
+
 * [Chapter One: Data Management](#chapter-one-data-management)
 	* [What is Data Management ?](#what-is-data-management-)
 	* [Data Management Life Cycle](#data-management-life-cycle)
@@ -21,11 +25,9 @@
 		* [How to implement the multi-temperature data management model?](#how-to-implement-the-multi-temperature-data-management-model)
 	* [What is DWH Characteristics?](#what-is-dwh-characteristics)
 	* [Data WareHouse Architecture](#data-warehouse-architecture)
-
-
-
-
-
+	* [Data Modeling](#data-modeling)
+		* [What is data model?](#what-is-data-model)
+		* [Data Model Elements](#data-model-elements)
 
 
 
@@ -206,11 +208,11 @@ Then Identify which storage type is suitable for the project
 ![](Images/DWH%20Arch.png)
 
 DWH architecture contains the following layers:
-1. **Source System Layer**: This layer consists of various data sources, such as databases, applications, and external systems, that provide raw data to the data warehouse.
+1. **Source System Layer**: This layer consists of various data sources, such as databases, applications, and external systems, that provide raw data to the data warehouse and identifying the stakeholders and deliver data analysis document.
 
-2. **Extraction Layer**: This layer handles the process of retrieving data from the source systems and preparing it for further processing.
+2. **Extraction Layer**: This layer handles the process of retrieving data from the source systems and preparing it with minimal data cleansing for staging layer.
 
-3. **Staging Area**: A temporary storage area where extracted data is cleaned, validated, and transformed before being loaded into the data warehouse.
+3. **Staging Area**: A temporary storage area where extracted data is cleaned, validated, and transformed before being loaded into the data warehouse [Learn more about staging layer](https://www.geeksforgeeks.org/what-is-a-data-staging-area-in-data-warehouse/).
 
 4. **Data Modeling**: This layer involves designing the data structure, including schemas and relationships, to optimize data organization and retrieval.
 
@@ -223,3 +225,78 @@ DWH architecture contains the following layers:
 8. **Metadata Layer**: The metadata layer stores information about the data's structure, sources, transformations, and usage to enable efficient management and understanding of the warehouse.
 
 9. **System Operations Layer**: This layer oversees the operational aspects of the data warehouse, including monitoring, scheduling, and maintaining system performance.
+
+### Data Modeling 
+
+#### What is data model?
+
+A data model is an abstract representation that outlines how data is organized, interconnected, and utilized within a system. It represents the key elements, such as entities and their characteristics, and defines the rules governing their interactions. By offering a clear blueprint, it ensures data is consistently stored, retrieved, and interpreted, aligning with the system's goals. Data models also describe the logical flow and processes of a business or application, helping to translate real-world scenarios into a structured digital format for efficient handling and analysis.
+
+Data Model Concepts
+
+| **Is not a** | **Is a**|
+|:----------:|:-------------:|
+|a science.|a general concept that leads to build full architecture.|
+|a static design for each organization.|an engineering design practices.|
+|a type of database.|different based on the use case and the database type.|
+|a new invention which needs to be done for each project.|customizable, and we can utilize some of the ready built architecture.|
+|           |affecting information reporting performance.|
+
+
+Data Model Also is 
+
+* The first part before starting integration with any new source system.
+
+* The connection layer between business requirements and technical design.
+
+* It is also the translation between logical and physical layer.
+
+* It is unified across all systems and has the same patterns and practices.
+
+* It engaged with any source systems integration from the early stages.
+ 
+* This stage output is a data model design document or mapping sheet
+
+
+#### Data Model Elements
+
+1. Facts: are the measurements/metrics or facts from the business process.
+
+2. Dimensions: provide the context surrounding a business process event. In simple terms, they give who, what, where the fact.
+
+3. Attributes: are the various characteristics of the dimension.
+
+**Dimensional model life cycle**
+1. Gathering Requirements (Source Driven, Business/User Driven).
+2. Identify granularity of the facts
+3. Identify the dimensions
+4. Identify the facts
+
+**Dimensions Types**
+
+1. Conformed Dimension.
+2. Degenerate Dimension.
+3. Junk Dimension (Garbage Dimension).
+4. Role-Playing Dimension.
+5. Outrigger Dimension.
+6. Snowflake Dimension.
+7. Shrunken Rollup Dimension.
+8. Swappable Dimension.
+9. Slowly changing Dimension.
+10. Fast Changing Dimension (Mini Dimension).
+11. Heterogenous Dimensions
+12. Multi-valued dimensions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
