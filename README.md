@@ -8,6 +8,8 @@
 
 
 
+<!-- Start Document Outline -->
+
 * [Chapter One: Data Management](#chapter-one-data-management)
 	* [What is Data Management ?](#what-is-data-management-)
 	* [Data Management Life Cycle](#data-management-life-cycle)
@@ -27,7 +29,17 @@
 	* [Data WareHouse Architecture](#data-warehouse-architecture)
 	* [Data Modeling](#data-modeling)
 		* [What is data model?](#what-is-data-model)
+		* [Purpose of Data Models](#purpose-of-data-models)
 		* [Data Model Elements](#data-model-elements)
+		* [Dimensional Data Model Elements](#dimensional-data-model-elements)
+		* [Dimensional model life cycle](#dimensional-model-life-cycle)
+		* [Dimensions Types](#dimensions-types)
+		* [Conformed Dimension](#conformed-dimension)
+
+<!-- End Document Outline -->
+
+
+
 
 
 
@@ -258,6 +270,50 @@ Data Model Also is
 * This stage output is a data model design document or mapping sheet
 
 
+#### Purpose of Data Models
+- Used to capture and present information.
+- Applied in two forms:
+  - **Operational Form**: For OLTP (Online Transaction Processing) applications.
+  - **Informational Form**: For data warehouses.
+  
+**E/R Diagram (Entity-Relationship Diagram)**
+- A traditional data modeling method.
+- Focuses on capturing relationships between entities.
+- Acts as a communication tool between data modelers and business analysts.
+- Helps analyze business requirements and design data structures.
+
+**Dimensional Modeling**
+- Focused on the business perspective.
+- Helps business analysts visualize abstract questions and utilize data effectively.
+- Facilitates easy navigation of data structures for ad hoc queries and analysis.
+- Represents data as an abstraction of business activities, resources, and results.
+
+**Comparison of E/R and Dimensional Models**
+
+| **E/R Models**| **Dimensional Models**|
+|:-------------:|:---------------------:|
+|Normalized structure.| Denormalized structure.|
+| Ideal for OLTP systems.| Ideal for data warehouses.|
+| Focuses on efficient data insertion, updating, and deletion. | Focuses on efficient data retrieval (Select). |
+| Best for reporting and fixed queries.| Best for ad hoc queries and analysis.|
+
+**When to Use Each Approach**
+- **E/R Modeling**: Use for highly transaction-oriented OLTP applications, reporting, and fixed queries.
+- **Dimensional Modeling**: Use for data warehousing applications with ad hoc querying and analysis.
+
+**Core Goals of Data Models**
+- **OLTP Applications**: Efficiently manage data (Insert, Update, Delete).
+- **Data Warehouses**: Efficiently retrieve data (Select).
+
+**Role of Data Models in Data Warehousing**
+- Organize the structure and contents of data in the warehouse.
+- Essential for understanding and managing business processes.
+
+**Key Distinction**
+- All dimensional models are technically E/R models.
+- **E/R Models**: Normalized structure.
+- **Dimensional Models**: Denormalized structure.
+
 #### Data Model Elements
 
 1. Facts: are the measurements/metrics or facts from the business process.
@@ -266,15 +322,46 @@ Data Model Also is
 
 3. Attributes: are the various characteristics of the dimension.
 
-**Dimensional model life cycle**
-1. Gathering Requirements (Source Driven, Business/User Driven).
-2. Identify granularity of the facts
-3. Identify the dimensions
-4. Identify the facts
 
-**Dimensions Types**
+#### Dimensional Data Model Elements
+1. Fact Table: is a primary table in a dimensional model.A Fact Table contains (Measurements/facts and Foreign key to dimension table).
 
-1. Conformed Dimension.
+2. Dimension table: contains dimensions of a fact and business reference data. They are joined to fact table via a foreign key. Dimension tables are de-normalized tables.
+
+
+#### Dimensional model life cycle
+
+**1. Gathering Requirements (Source Driven, Business/User Driven).**
+
+This phase involves selecting a specific business process to model. The selection is based on its importance to the organization, the quality of data available in the source systems, and the feasibility or complexity of the process.
+
+**2. Identify granularity of the facts**
+
+The grain defines the level of detail at which the data is captured. If a process has multiple grains, separate fact tables should be created for each. It is important to design the grain at the most detailed (atomic) level to allow flexibility for future additions and modifications without major redesigns.
+
+
+**3. Identify the dimensions**
+
+Dimensions are descriptive attributes of the data that provide context to the facts. In this step, the relevant dimensions for the chosen grain are identified.
+
+
+**4. Identify the facts**
+
+Facts represent measurable data points associated with the chosen grain. This step involves identifying the relevant facts and classifying them (e.g., additive, semi-additive, or non-additive). Default aggregation rules for these facts are also determined.
+
+**5. Verify the Model**
+
+Before moving forward, the dimensional model is validated against business requirements. If the model fails to meet requirements, the grain or other elements may need to be revisited and adjusted.
+
+**6. Physical Design Considerations**
+
+Once the model is designed, focus shifts to performance optimization. Techniques such as data partitioning, indexing, and aggregation are applied to enhance query efficiency and support real-world operational demands.
+
+
+
+#### Dimensions Types
+
+1. [Conformed Dimension.](#conformed-dimension)
 2. Degenerate Dimension.
 3. Junk Dimension (Garbage Dimension).
 4. Role-Playing Dimension.
@@ -284,8 +371,31 @@ Data Model Also is
 8. Swappable Dimension.
 9. Slowly changing Dimension.
 10. Fast Changing Dimension (Mini Dimension).
-11. Heterogenous Dimensions
-12. Multi-valued dimensions
+11. Heterogenous Dimensions.
+12. Multi-valued dimensions.
+
+
+#### Conformed Dimension
+
+**What are conformed dimensions?**
+
+Conformed dimensions are shared dimensions that have the same meaning across all fact tables they are joined with. They may share some or all attributes drawn from the same domain. A conformed dimension can also contain a subset of attributes from a primary dimension.
+
+**Purpose of Conformed Dimensions**
+
+Conformed dimensions are referenced by multiple fact tables or dimensional models, ensuring consistency across the enterprise data warehouse. They are used to avoid redundancy and support integration across different business processes.
+
+**Examples of Conformed Dimensions**
+
+* Date as a Key: if we have a date column across many facts, we could use the date as key in all tables. So, it should be a unified format.
+
+* Product-Id as a Key: if we have a product name which could vary between systems ex: (upper/lower) We can create a dimension table for the product details and use product id unified across fact tables.
+
+**Identifying Conformed Dimensions**
+
+* First, check if the required dimension already exists in the enterprise data warehouse. If it does, use the existing dimension instead of redesigning it.
+
+* If the required dimension does not exist, design a new dimension with long-term cross-enterprise usage in mind. During this process, interact with various business units to ensure the new dimension aligns with anticipated future requirements.
 
 
 
