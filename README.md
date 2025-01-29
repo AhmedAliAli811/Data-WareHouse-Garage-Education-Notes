@@ -399,14 +399,56 @@ Conformed dimensions are referenced by multiple fact tables or dimensional model
 
 
 
+#### Degenerate Dimension
+
+**What is a degenerate dimension?**
+
+A Dimension without any attributes. They are not typical dimensions, It is a transaction-based number which resides in the fact table. There
+may be more than one degenerate dimension inside a fact table.
+
+* Dimension Key without corresponding dimension table.
+* Stored in fact table.
+* It used to provide a grouping for business cases.
+
+**How to Identify a Degenerate Dimension**
+
+* It is a transaction-related number present in the OLTP system.
+* It does not have associated descriptive attributes that need to be stored separately.
+* The transaction number still provides value by allowing tracking and lookup of details related to a specific fact table row.
+* All descriptive information related to it is already extracted into other dimensions (e.g., date, time, product, customer).
+  
+**Example of a Degenerate Dimension**
+
+![](Images/Degenerate%20DIm.png)
+
+Consider a retail store sales transaction:
+
+* A Bill Number# 0405001 exists in the sales system.
+* The Bill Number# represents a purchase transaction.
+* All details of this transaction (date, time, products purchased, price, quantity) are already stored in separate dimensions.
+* The Bill Number# itself does not require a separate dimension table but remains in the fact table as a degenerate dimension.
 
 
 
+#### Junk Dimension (Garbage Dimension)
 
+**What is a Junk dimension?**
 
+A garbage dimension, also called a junk dimension, is a dimension that stores low-cardinality attributes such as codes, indicators, statuses, and flags. These attributes do not belong to a hierarchy and are grouped together to reduce the number of dimensions and minimize columns in the fact table.
 
+* It used to reduce the number of dimensions (low-cardinality columns) in the dimensional model and reduce the number of columns in the fact table. It is a collection of random transnational codes, flags, or text attributes.
 
+* It optimizes space as fact tables should not include low-cardinality or text fields. It mainly includes measures, foreign keys, and degenerate dimension keys.
 
+**Junk Dimension Example**
+
+![](Images/junk%20dim.png)
+
+**How to Calculate Total Size of a Garbage Dimension?**
+
+* We must split the Junk dimension into more dimensions in case the size grows by the time.
+
+* It is easy to calculate the expected number of rows as it is the total number of combinations between the low-cardinality attributes; 3 columns each have 3 values total = 3 * 3 = 9.
 
 
 
