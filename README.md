@@ -452,3 +452,62 @@ A garbage dimension, also called a junk dimension, is a dimension that stores lo
 
 
 
+#### Role-playing dimensions (Re-usable Dimension)
+
+**What is a Role-playing dimension?**
+
+A single physical dimension helps to reference multiple times in a fact table as each reference linking to a logically distinct role for the dimension.
+
+**Role-playing Dimension Example**
+
+a dimensional model designed for an order management business process. There are two date entities (order and received date) at the same day grain involved.
+
+![](Images/role-playing%201.png)
+
+Instead of using two separate date tables, Order_Date and Received Date with the same details, we can use just one date table and refer to it multiple times.
+
+![](Images/role-playing%202.png)
+
+
+**Conformed vs Role-Playing Dimension**
+
+* Conformed is the same dimension used in different facts and has the **same meaning** ex: CustomerID.
+
+* Role-Playing is the same dimension which used multiple times within the same fact but with **different meanings** ex: Date.
+
+
+
+
+#### Outrigger Dimensions
+
+**What is a Outrigger Dimensions?**
+
+A dimension which has a reference to another dimension table. The secondary dimension called outrigger dimension.
+
+**Outrigger Dimensions Example**
+
+![](Images/Outrigger%20.png)
+  
+  
+#### Snowflake Dimensions
+
+**What is Snowflake Dimension?**
+
+Snowflake Dimension is a dimension that has a hierarchy of attributes. This attribute is normalized, and each dimension has a relationship with another hierarchy dimension table.
+
+**When to Use Snowflaking?**
+
+* When a dimension contains attributes of different grains (levels of detail).
+* When attributes come from different source systems, making updates more manageable.
+* For performance optimization in aggregate tables, where certain hierarchical data can be separated for faster queries.
+
+**Why NOT to Use Snowflaking**
+
+* Reduces query performance due to increased joins.
+* Increases complexity, making the schema harder to understand.
+* Minimal space savings, as dimension tables are small compared to fact tables.
+
+
+**Snowflake Dimension Example**
+
+![](Images/snowflake%20dim.png)
