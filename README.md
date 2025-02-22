@@ -10,6 +10,10 @@
 
 <!-- Start Document Outline -->
 
+
+
+
+
 * [Chapter One: Data Management](#chapter-one-data-management)
 	* [What is Data Management ?](#what-is-data-management-)
 	* [Data Management Life Cycle](#data-management-life-cycle)
@@ -35,7 +39,13 @@
 		* [Dimensional model life cycle](#dimensional-model-life-cycle)
 		* [Dimensions Types](#dimensions-types)
 		* [Conformed Dimension](#conformed-dimension)
-
+		* [Degenerate Dimension](#degenerate-dimension)
+		* [Junk Dimension (Garbage Dimension)](#junk-dimension-garbage-dimension)
+		* [Role-playing dimensions (Re-usable Dimension)](#role-playing-dimensions-re-usable-dimension)
+		* [Outrigger Dimensions](#outrigger-dimensions)
+		* [Snowflake Dimensions](#snowflake-dimensions)
+		
+	
 <!-- End Document Outline -->
 
 
@@ -362,11 +372,11 @@ Once the model is designed, focus shifts to performance optimization. Techniques
 #### Dimensions Types
 
 1. [Conformed Dimension.](#conformed-dimension)
-2. Degenerate Dimension.
-3. Junk Dimension (Garbage Dimension).
-4. Role-Playing Dimension.
-5. Outrigger Dimension.
-6. Snowflake Dimension.
+2. [Degenerate Dimension](#degenerate-dimension).
+3. [Junk Dimension (Garbage Dimension)](#junk-dimension-garbage-dimension).
+4. [Role-Playing Dimension](#role-playing-dimensions-re-usable-dimension).
+5. [Outrigger Dimension](#outrigger-dimensions).
+6. [Snowflake Dimension](#snowflake-dimensions).
 7. Shrunken Rollup Dimension.
 8. Swappable Dimension.
 9. Slowly changing Dimension.
