@@ -521,3 +521,110 @@ Snowflake Dimension is a dimension that has a hierarchy of attributes. This attr
 **Snowflake Dimension Example**
 
 ![](Images/snowflake%20dim.png)
+
+
+#### Slowly changing dimensions
+
+**What are slowly changing dimensions?**  
+
+A slowly changing dimension is a dimension whose attributes for a record (row) change slowly over time.
+
+**Types of slowly changing dimension**
+1. Type 0 (Fixed Dimension): We don’t change the current even the source changes.
+![](Images/slowly%20type%200.png)
+2. Type 1 (No History): No history is maintained only the latest replace the current.
+![](Images/slowly%20type%201.png)
+3. Type 2 (History): Series of history of records are maintained.
+![](Images/slowly%20type%202.png)
+4. Type 3 (Hybrid): Only the last Change and the Current new change is stored
+![](Images/slowly%20type%203.png)
+5. Type 4 : We split the data into two tables, first the current record and second is the historical (most common usage).
+![](Images/slowly%20type%204.png)
+
+**Important Note**
+There are some other types which is a combination between the above similar than type 3 combined between 1 | 2.| You can check the chapter resources for more information about the other types.
+
+**Type 1 approach**
+
+**When to use the Type-1 change handling approach ?**
+* This may be the best approach to use if the attribute change is simple, such as a correction in
+spelling. And, if the old value was wrong, it may not be critical that history is not maintained.
+
+* It is also appropriate if the business does not need to track changes for specific attributes of a particular dimension.
+
+**Advantages of the Type-1 change handling approach**
+* It is the easiest and most simple to implement.
+* It is extremely effective in those situations requiring the correction of bad data.
+* No change is needed to the structure of the dimension table.
+
+
+**Disadvantages of the Type-1 change handling approach**
+* All history may be lost if this approach is used inappropriately. It is typically not possible to trace history.
+* All previously made aggregated tables need to be rebuilt.
+
+
+**Type 2 approach**
+
+**When to use the Type-2 change handling approach ?**
+* When there is need to track an unknown number of historical changes to dimensional attributes.
+
+
+**Advantages of the Type-2 change handling approach**
+* Enables tracking of all historical information accurately and for an infinite number of changes.
+
+
+**Disadvantages of the Type-2 change handling approach**
+* Causes the size of the dimension table to grow fast. In cases where the number of rows being inserted is very high, then storage and performance of the dimensional model may be affected.
+
+* Complicates the ETL process needed to load the dimensional model. ETL-related activities that are required in the type-2 approach include maintenance of effective and expiration date attributes in the staging area.
+
+**Impact on existing dimension table structure**
+* No change to dimensional structure needed.
+* Additional columns for effective and expiration dates are not needed in the dimension table.
+
+**Impact on preexisting aggregations**
+* There is no impact on the preaggregated tables. The aggregated tables are not required to be rebuilt as with the type-1 approach.
+
+**Impact on database size**
+* Yes, accelerates the dimensional table growth because with each change in a dimensional attribute, a new row is inserted into the dimension table.
+
+**Adding effective and expiration dates to dimension tables**
+* No. This is not necessary in the dimension tables.
+
+
+
+
+**Type 3 approach**
+
+**When to use the type-3 change handling approach?**
+* Should only be used when it is necessary for the data warehouse to track historical changes, and when such changes will only occur for a finite number of times. If the number of changes can be predicted, then the dimension table can be modified to place additional columns to track the changes.
+
+
+**Advantages of the type-3 change handling approach**
+* Does not increase the size of the table as compared to the type-2 approach, since new information is updated.
+* Allows us to keep part of history. This is equivalent to the number of changes we can predict. Such prediction helps us modify the dimension table to accommodate new columns.
+
+**Disadvantages of the type-3 change handling approach**
+* Does not maintain all history when an attribute is
+changed more often than the number in the
+predicted range, because the dimension table is
+designed to accommodate a finite number of
+changes.
+
+* If we designed a dimension table assuming a
+fixed number of changes, then needed more,
+then we would have to redesign or risk losing
+history.
+
+        
+**Impact on existing dimension table structure**
+* The dimension table is modified to add columns.
+* The number of columns added depends on the
+number of changes to be tracked.
+
+**Impact on preexisting aggregations**
+* You may be required to rebuild the
+preaggregated tables.
+
+**Impact on database size**
+* No impact is there since data is only updated.
