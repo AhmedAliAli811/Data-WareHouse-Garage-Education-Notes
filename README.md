@@ -4,15 +4,7 @@
 ****Table of Content****
 
 
-
-
-
-
 <!-- Start Document Outline -->
-
-
-
-
 
 * [Chapter One: Data Management](#chapter-one-data-management)
 	* [What is Data Management ?](#what-is-data-management-)
@@ -44,10 +36,10 @@
 		* [Role-playing dimensions (Re-usable Dimension)](#role-playing-dimensions-re-usable-dimension)
 		* [Outrigger Dimensions](#outrigger-dimensions)
 		* [Snowflake Dimensions](#snowflake-dimensions)
-		
-	
-<!-- End Document Outline -->
+		* [Slowly changing dimensions](#slowly-changing-dimensions)
+		* [Fast changing dimensions (rapidly changing dimensions , Mini Dimensions )](#fast-changing-dimensions-rapidly-changing-dimensions--mini-dimensions-)
 
+<!-- End Document Outline -->
 
 
 
@@ -323,7 +315,7 @@ Data Model Also is
 - All dimensional models are technically E/R models.
 - **E/R Models**: Normalized structure.
 - **Dimensional Models**: Denormalized structure.
-
+----
 #### Data Model Elements
 
 1. Facts: are the measurements/metrics or facts from the business process.
@@ -332,13 +324,13 @@ Data Model Also is
 
 3. Attributes: are the various characteristics of the dimension.
 
-
+---
 #### Dimensional Data Model Elements
 1. Fact Table: is a primary table in a dimensional model.A Fact Table contains (Measurements/facts and Foreign key to dimension table).
 
 2. Dimension table: contains dimensions of a fact and business reference data. They are joined to fact table via a foreign key. Dimension tables are de-normalized tables.
 
-
+---
 #### Dimensional model life cycle
 
 **1. Gathering Requirements (Source Driven, Business/User Driven).**
@@ -368,7 +360,7 @@ Before moving forward, the dimensional model is validated against business requi
 Once the model is designed, focus shifts to performance optimization. Techniques such as data partitioning, indexing, and aggregation are applied to enhance query efficiency and support real-world operational demands.
 
 
-
+----
 #### Dimensions Types
 
 1. [Conformed Dimension.](#conformed-dimension)
@@ -377,14 +369,14 @@ Once the model is designed, focus shifts to performance optimization. Techniques
 4. [Role-Playing Dimension](#role-playing-dimensions-re-usable-dimension).
 5. [Outrigger Dimension](#outrigger-dimensions).
 6. [Snowflake Dimension](#snowflake-dimensions).
-7. Shrunken Rollup Dimension.
-8. Swappable Dimension.
-9. Slowly changing Dimension.
-10. Fast Changing Dimension (Mini Dimension).
+7. [Slowly changing Dimension](#slowly-changing-dimensions).
+8. [Fast Changing Dimension (Mini Dimension)](#fast-changing-dimensions-rapidly-changing-dimensions--mini-dimensions-).
+9. Shrunken Rollup Dimension.
+10. Swappable Dimension.
 11. Heterogenous Dimensions.
 12. Multi-valued dimensions.
 
-
+---
 #### Conformed Dimension
 
 **What are conformed dimensions?**
@@ -408,7 +400,7 @@ Conformed dimensions are referenced by multiple fact tables or dimensional model
 * If the required dimension does not exist, design a new dimension with long-term cross-enterprise usage in mind. During this process, interact with various business units to ensure the new dimension aligns with anticipated future requirements.
 
 
-
+---
 #### Degenerate Dimension
 
 **What is a degenerate dimension?**
@@ -439,7 +431,7 @@ Consider a retail store sales transaction:
 * The Bill Number# itself does not require a separate dimension table but remains in the fact table as a degenerate dimension.
 
 
-
+---
 #### Junk Dimension (Garbage Dimension)
 
 **What is a Junk dimension?**
@@ -461,7 +453,7 @@ A garbage dimension, also called a junk dimension, is a dimension that stores lo
 * It is easy to calculate the expected number of rows as it is the total number of combinations between the low-cardinality attributes; 3 columns each have 3 values total = 3 * 3 = 9.
 
 
-
+---
 #### Role-playing dimensions (Re-usable Dimension)
 
 **What is a Role-playing dimension?**
@@ -485,7 +477,7 @@ Instead of using two separate date tables, Order_Date and Received Date with the
 
 * Role-Playing is the same dimension which used multiple times within the same fact but with **different meanings** ex: Date.
 
-
+---
 
 
 #### Outrigger Dimensions
@@ -498,6 +490,7 @@ A dimension which has a reference to another dimension table. The secondary dime
 
 ![](Images/Outrigger%20.png)
   
+---  
   
 #### Snowflake Dimensions
 
@@ -522,6 +515,7 @@ Snowflake Dimension is a dimension that has a hierarchy of attributes. This attr
 
 ![](Images/snowflake%20dim.png)
 
+---
 
 #### Slowly changing dimensions
 
@@ -628,3 +622,111 @@ preaggregated tables.
 
 **Impact on database size**
 * No impact is there since data is only updated.
+
+---
+
+#### Fast changing dimensions (rapidly changing dimensions , Mini Dimensions )
+
+**What are fast changing dimensions?**
+what happens when the rate of change in these slowly changing dimensions speeds up? If a
+dimension attribute changes very quickly on a daily, weekly, or monthly basis,
+then we are no longer dealing with a slowly changing dimension that can be
+handled by using the Type-1, Type-2, or Type-3 approach.
+
+**Why Fast Changing Dimensions?**
+* When we have a dimension with one or more of its attributes changing very fast.
+* It causes a performance issue if we tried to handle this case similar SCD Type 2 because of the rapidly changing in this dimension and the table will includes a lot of rows for this dimension
+
+
+**How to handle fast changing dimensions?**
+
+The best approach for handling very fast changing dimensions is to separate the
+fast changing attributes into one or more separate dimensions which are called
+**mini-dimensions**. 
+
+The fact table then has two or more foreign keys—one for the
+primary dimension table and another for the one or more mini-dimensions
+(consisting of fast changing attributes). The primary dimension table and all its
+mini-dimensions are associated with one another every time we insert a row in
+the fact table.
+
+
+**What is a mini-dimension?** 
+
+A mini-dimension is a dimension that usually contains fast changing attributes of
+a larger dimension table. This is to improve accessibility to data in the fact table.
+Rows in mini-dimensions are fewer than rows in large dimension tables because
+we try to restrict the rows in mini-dimensions by using the band range value
+concept.
+
+
+**Solving the Fast-Changing Dimensions Problem**
+
+- **Step 1: Identify constantly changing attributes**, such as:
+  - Age, income, test score, credit history score, customer account status, weight.
+
+- **Step 2: Convert each changing attribute into band ranges**:
+  - This limits the number of possible values by forcing attributes into discrete categories.
+  
+- **Example**:
+  - If 7 attributes each have 10 possible values, the mini-dimension table would have 10⁷ = 1 million rows.
+
+- **Step 3: Create a Customer Mini-Dimension table**:
+  - Contains only banded values of fast-changing attributes.
+  - Reduces volatility in the main dimension table.
+  
+- **Result**:
+  - The fast-changing attributes now take fixed band-range values.
+  - This prevents constant changes and simplifies tracking.
+
+
+**Before FCD**
+
+![](Images/before%20fcd.png)
+
+
+**After FCD**
+
+![](Images/after%20fcd.png)
+
+
+**Why not use Snowflaking?**
+
+
+![](Images/why%20not%20snow.png)
+
+
+**Snowflaking Does Not Solve the Fast-Changing Dimension Problem**
+
+- **Scenario**:
+  - A Customer dimension is split by creating a **Customer Mini-Dimension**.
+  - The mini-dimension is **snowflaked** and attached as a **foreign key** to the Customer dimension.
+
+- **Issue with this design**:
+  - Although it may seem logical, **snowflaking the mini-dimension is a bad design** for handling fast-changing dimensions.
+  - This design still introduces the **fast-changing dimension problem**.
+
+- **Example**:
+  - Customer **Stanislav Vohnik** is initially linked to the 1st row in the `Customer_Mini_Dimension`.
+
+- **Change scenario**:
+  - In one year, Stanislav's profile changes 5 times.
+  - Now, he is associated with **5 different rows** in the mini-dimension.
+
+- **Scale of the issue**:
+  - If there are **10 million customers**, and each has an average of **5 profile changes per year**:
+    - The mini-dimension would grow to approximately **50 million rows**.
+
+**Recommended Solution**
+
+- Instead of snowflaking, attach the **primary key of the `Customer_Mini_Dimension` table directly to the `Retail_Sales` fact table**.
+
+- **Why this works**:
+  - Each fact table record is associated with the **correct profile** of the customer **at the time of transaction**.
+  - The `Customer` table retains **only one record** for each customer (e.g., Stanislav Vohnik).
+  - **Profile changes** are tracked in the fact table using the appropriate reference to the mini-dimension.
+
+- **Result**:
+  - The fact table handles the changes efficiently.
+  - No need to replicate the customer in the main dimension for each change.
+  - The solution avoids bloating the dimension tables and provides a scalable approach to track fast-changing attributes.
