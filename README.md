@@ -1,7 +1,6 @@
 # Data Warehouse Notes
 * All notes taken from the [Big Data Engineering in depth Course](https://youtube.com/playlist?list=PLxNoJq6k39G_m6DYjpz-V92DkaQEiXxkF&si=kw2CJj5jUw2oNcej)  
 
-****Table of Content****
 
 
 <!-- Start Document Outline -->
@@ -38,9 +37,12 @@
 		* [Snowflake Dimensions](#snowflake-dimensions)
 		* [Slowly changing dimensions](#slowly-changing-dimensions)
 		* [Fast changing dimensions (rapidly changing dimensions , Mini Dimensions )](#fast-changing-dimensions-rapidly-changing-dimensions--mini-dimensions-)
+		* [Shrunken Rollup Dimension.](#shrunken-rollup-dimension)
+		* [Multi-Valued Dimensions](#multi-valued-dimensions)
+		* [Swappable Dimensions (Hot-Swappable Dimensions / Profile Tables)](#swappable-dimensions-hot-swappable-dimensions--profile-tables)
+		* [Heterogeneous Dimensions](#heterogeneous-dimensions)
 
 <!-- End Document Outline -->
-
 
 
 
@@ -371,10 +373,10 @@ Once the model is designed, focus shifts to performance optimization. Techniques
 6. [Snowflake Dimension](#snowflake-dimensions).
 7. [Slowly changing Dimension](#slowly-changing-dimensions).
 8. [Fast Changing Dimension (Mini Dimension)](#fast-changing-dimensions-rapidly-changing-dimensions--mini-dimensions-).
-9. Shrunken Rollup Dimension.
-10. Swappable Dimension.
-11. Heterogenous Dimensions.
-12. Multi-valued dimensions.
+9. [Shrunken Rollup Dimension](#shrunken-rollup-dimension).
+10. [Multi-valued dimensions](#multi-valued-dimensions).
+11. [Swappable Dimension](#swappable-dimensions-hot-swappable-dimensions--profile-tables).
+12. [Heterogenous Dimensions](#heterogeneous-dimensions).
 
 ---
 #### Conformed Dimension
@@ -730,3 +732,270 @@ concept.
   - The fact table handles the changes efficiently.
   - No need to replicate the customer in the main dimension for each change.
   - The solution avoids bloating the dimension tables and provides a scalable approach to track fast-changing attributes.
+
+
+
+#### Shrunken Rollup Dimension.
+
+**What is Shrunken Rollup dimension?**
+
+Shrunken Rollup dimension is used for developing aggregate (higher level of summary) fact tables.
+  
+  
+* It required that the data model has a lower level of granularity.
+
+* We have a daily usage fact table, and we need to have a higher level of monthly usage.  So, we use the monthly dimension to get a summary of the daily.
+
+* We have a daily usage fact table aggregated on area-id, and we need to create another summary table aggregate* d based on city id. So, the new grain level here is the new dimension for the city.
+
+##### Example  
+
+![](Images/Shrunken%20dim.png)
+
+**Original Date Dimension**
+- Date
+- Day
+- Month
+- Quarter
+- Year
+
+**Shrunken Rollup Date Dimension**
+- Month
+- Quarter
+- Year
+
+Used when one fact table is at the **daily level** and another is at the **monthly level**.
+
+##### Why It’s Used
+- Improves query performance
+- Simplifies the data model
+- Avoids unnecessary joins
+- Preserves conformed dimensions across fact tables
+
+###### Key Characteristics
+- Subset of a larger dimension
+- Higher granularity
+- Fewer attributes
+- Reused across fact tables
+
+##### When to Use It
+- Fact tables with different grains
+- Detailed attributes are not needed
+- Need consistency in reporting
+
+
+#### Multi-Valued Dimensions
+
+##### What Is a Multi-Valued Dimension?
+A **multi-valued dimension** occurs when one fact record relates to **more than one dimension member**.
+
+##### Common Examples
+- Multiple insured persons under one insurance policy
+- Multiple customers associated with a single bank account
+- Multiple diagnoses for one patient
+- Multiple sales representatives contributing to one order
+
+---
+
+##### Why It Is a Modeling Challenge
+Including a multi-valued dimension directly in the fact table:
+- Violates the **grain** of the fact table
+- Causes incorrect aggregations
+- Leads to data duplication and inaccurate analysis
+
+If the grain is defined as *one row per policy account per month*, adding individual customers directly would break this rule when multiple people are associated with the same policy.
+
+---
+
+##### Bridge Table Solution
+
+##### What Is a Bridge Table?
+A **bridge table** is used to resolve a **many-to-many relationship** between:
+- A fact table (or dimension), and
+- A multi-valued dimension
+
+##### Typical Contents
+- Foreign key to the first table (Fact or Dimension)
+- Foreign key to the multi-valued Dimension
+- Optional **weighting factor**
+
+---
+
+##### Insurance Example
+- Policy Account Number: `963276`
+- Insured Persons: John (primary), Lisa, Dave
+- Monthly premium is charged once for the entire family
+
+##### Fact Table Grain
+- One row per **policy account per month**
+
+##### Solution
+- Create an **Account–Insured_Person bridge table**
+- Associate multiple insured persons with one policy account
+- Preserve the fact table grain
+
+---
+
+##### Weighting Factor
+
+##### Definition
+A **weighting factor** is a numeric value stored in the bridge table that allocates additive facts across multiple dimension members.
+
+##### Rules
+- Weighting factors for a single group must **sum to 1**
+- Used to correctly distribute metrics such as revenue or premiums
+
+##### Example
+| Insured Person | Weight |
+|---------------|--------|
+| John          | 0.50   |
+| Lisa          | 0.30   |
+| Dave          | 0.20   |
+| **Total**     | **1.00** |
+
+---
+
+##### Approaches to Handling Multi-Valued Dimensions
+
+##### 1. Choose One Value and Ignore Others
+- Simplest approach
+- Often results in incomplete or misleading analysis
+
+##### 2. Create Fixed Multiple Dimension Columns
+- Not scalable
+- Lacks flexibility when number of values varies
+
+##### 3. Use a Bridge Table (Best Practice)
+- Scalable and flexible
+- Preserves grain integrity
+- Supports accurate aggregation
+
+---
+
+##### Bridge Table Placement Options
+
+##### 1. Between Fact and Dimension
+Example: Orders ↔ Sales Representatives  
+- Each contributor gets a weighting factor based on contribution
+
+##### 2. Between Two Dimensions
+Example: Account ↔ Insured Person  
+- Fact table remains unchanged
+- Bridge table captures many-to-many relationship
+
+---
+
+##### Why Multi-Valued Dimensions Are Important
+- Accurately model real-world complexity
+- Enable advanced analytics without corrupting data
+- Maintain clean and reliable dimensional models
+
+---
+
+#### Swappable Dimensions (Hot-Swappable Dimensions / Profile Tables)
+
+##### Definition
+A **swappable dimension** is a dimension that has **multiple alternate versions** of itself that can be **swapped at query time**. Each version of the hot swappable dimension can have **different structures**, including incompatible attribute names and different hierarchies.  
+
+**Key Characteristics:**
+- Alternate versions may be **completely different** in structure.  
+- All versions access the **same fact table** but produce **different outputs**.  
+- Unlike relational databases, OLAP systems make hot swappable dimensions **more complicated**, as joins cannot always be defined at query time.  
+
+---
+
+##### Implementation Approaches
+
+1. **Separate Physical Dimensions**
+   - Create **physical subsets** of the primary dimension with only relevant **columns and rows**.  
+   - Swap the subset dimension at runtime by **joining its key** to the fact table’s foreign key.  
+   - The **fact table remains the same** across all dimension versions.
+
+2. **Views Based on the Primary Dimension**
+   - Create **one or more views** from the primary dimension.  
+   - Swap these views at runtime instead of the original dimension table.  
+
+3. **Direct Join with Runtime Filter**
+   - Join the **fact table directly** to a generalized dimension containing all versions.  
+   - Use a **runtime filter** (e.g., `ProfileType` or `PartyType`) to select the relevant version.  
+   - Some columns may be **empty or NULL** depending on the version being used.  
+
+---
+
+
+- **Dimensional Model Example:**  
+  - In an **order management system**, dimensions such as **Product, Customer, Supplier, and Sales_Channel** can have swappable dimensions.  
+  - All business users still use the same fact table (**Sales_Fact**) stored in a single place, but they may **swap different versions of dimensions at query time**.  
+
+- **Heterogeneous Products Note:**  
+  - If the company is selling **heterogeneous products to completely different customers**, these products would usually belong to **separate data marts** or **data warehouses**.  
+
+- **Benefits:**  
+  - Improves **performance** of the dimensional model.  
+  - Helps create **more secure dimensions**.  
+  - Provides **flexibility** to analyze the same facts from **different perspectives** without duplicating the fact table.  
+
+- **Summary:**  
+  - Swappable dimensions allow multiple **perspectives of the same entity**.  
+  - They support **dynamic analysis** without duplicating facts.  
+  - Implementation can be via **physical dimension subsets**, **views**, or **direct joins with runtime filters**.  
+  - Useful in **complex OLAP systems** to handle **different business needs**, **performance optimization**, and **security management**.
+
+---
+
+
+#### Heterogeneous Dimensions
+
+##### Definition
+A **heterogeneous dimension** occurs when different types of entities share a common fact table, but each type has **different sets of attributes**.  
+
+- Each type has unique attributes not shared with others.  
+- This allows analysis of different types in a shared context while managing structural differences.  
+
+**Illustrative Example (Products):**  
+- An insurance company sells **home insurance** and **car insurance**.  
+- Attributes for home insurance (e.g., property value, number of rooms) differ from car insurance (e.g., vehicle type, license plate).  
+- Modeling both under the same dimension requires special handling — this is a case of heterogeneous dimensions.  
+
+---
+
+##### Implementation Approaches
+
+##### 1. Separate Dimensions
+- **Description:** Create a **dimension table for each type** and optionally separate fact tables.  
+- **Example:**  
+  - Home Insurance Dimension & Fact Table  
+  - Car Insurance Dimension & Fact Table  
+- **Pros:**  
+  - Detailed, type-specific analysis.  
+  - Smaller, manageable tables.  
+- **Cons:**  
+  - Cross-type analysis requires combining multiple tables.  
+
+##### 2. Merge Attributes
+- **Description:** Combine all attributes from all types into **one table**.  
+- **Example:**  
+  - A single Insurance Dimension table with columns for both home and car insurance; irrelevant columns are **NULL** for each type.  
+- **Pros:** Single table for all types.  
+- **Cons:**  
+  - Table can grow very large.  
+  - Performance and maintenance issues.  
+- **Recommendation:** Only feasible if attribute differences are small; generally **not recommended**.  
+
+##### 3. Generic Design
+- **Description:** Include only **common attributes** across types in a single dimension table.  
+- **Example:**  
+  - A generic Insurance Dimension table with shared attributes like customer ID, policy number, and transaction amount.  
+- **Pros:** Allows comparison across types.  
+- **Cons:**  
+  - Only common attributes are analyzable.  
+  - Detailed insights require separate tables.  
+
+---
+
+##### Key Insights
+- Heterogeneous dimensions handle **diverse entity types** in a shared fact context.  
+- **Implementation choice depends on analysis needs:**  
+  - **Separate dimensions** → Detailed, type-specific analysis  
+  - **Generic design** → High-level cross-type metrics  
+  - **Avoid merge attributes** → For highly diverse types due to performance and maintenance issues
