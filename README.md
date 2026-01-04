@@ -41,6 +41,43 @@
 		* [Multi-Valued Dimensions](#multi-valued-dimensions)
 		* [Swappable Dimensions (Hot-Swappable Dimensions / Profile Tables)](#swappable-dimensions-hot-swappable-dimensions--profile-tables)
 		* [Heterogeneous Dimensions](#heterogeneous-dimensions)
+	* [Fact Tables](#fact-tables)
+		* [1. What is a Fact Table?](#1-what-is-a-fact-table)
+		* [Key Characteristics](#key-characteristics)
+		* [2. How to Design a Fact Table](#2-how-to-design-a-fact-table)
+		* [3. Fact Table Grain (Granularity)](#3-fact-table-grain-granularity)
+	* [4. Fact Table Types](#4-fact-table-types)
+		* [4.1 Transaction Fact Table](#41-transaction-fact-table)
+		* [4.2 Periodic Snapshot Fact Table](#42-periodic-snapshot-fact-table)
+		* [4.3 Accumulating Snapshot Fact Table](#43-accumulating-snapshot-fact-table)
+	* [5. Fact Table Types Comparison](#5-fact-table-types-comparison)
+	* [6. Fact Types](#6-fact-types)
+		* [6.1 Additive Facts](#61-additive-facts)
+		* [6.2 Semi-Additive Facts](#62-semi-additive-facts)
+		* [6.3 Non-Additive Facts](#63-non-additive-facts)
+		* [6.4 Derived Facts](#64-derived-facts)
+		* [6.5 Textual Facts](#65-textual-facts)
+		* [6.6 Pseudo Facts](#66-pseudo-facts)
+		* [6.7 Factless Fact Tables](#67-factless-fact-tables)
+	* [7. Identifying Facts](#7-identifying-facts)
+	* [8. Conformed Facts](#8-conformed-facts)
+	* [9. Year-to-Date (YTD) Facts](#9-year-to-date-ytd-facts)
+	* [10. Event Fact Tables](#10-event-fact-tables)
+	* [11. Composite Primary Key Design](#11-composite-primary-key-design)
+	* [12. Fact Table Sizing and Growth](#12-fact-table-sizing-and-growth)
+	* [Business-Based Estimation](#business-based-estimation)
+	* [Technical-Based Estimation](#technical-based-estimation)
+	* [13. Best Practices](#13-best-practices)
+	* [Schema Types](#schema-types)
+		* [1. Schema Types Overview](#1-schema-types-overview)
+		* [2. Star Schema](#2-star-schema)
+		* [3. Snowflake Schema](#3-snowflake-schema)
+		* [4. Star Schema vs Snowflake Schema (Enhanced)](#4-star-schema-vs-snowflake-schema-enhanced)
+	* [5. Additional Notes](#5-additional-notes)
+	* [Factless Fact Tables](#factless-fact-tables)
+	* [Pseudo-Facts](#pseudo-facts)
+	* [Choosing a Schema](#choosing-a-schema)
+	* [Real-World Example](#real-world-example)
 
 <!-- End Document Outline -->
 
@@ -999,3 +1036,398 @@ A **heterogeneous dimension** occurs when different types of entities share a co
   - **Separate dimensions** → Detailed, type-specific analysis  
   - **Generic design** → High-level cross-type metrics  
   - **Avoid merge attributes** → For highly diverse types due to performance and maintenance issues
+
+
+### Fact Tables
+
+#### 1. What is a Fact Table?
+A **Fact Table** is the **core and foundation of a Data Warehouse**.  
+It stores **measurable business data (facts)** related to a specific **business process**.
+
+#### Key Characteristics
+- Contains **numeric measurements (facts)** and **foreign keys** to dimension tables
+- Represents business activities such as **sales, calls, orders, or claims**
+- Located at the **center of the Star Schema**
+- Main target of **analytical queries and reports**
+- Optimized for **aggregation and analysis**
+
+---
+
+#### 2. How to Design a Fact Table
+1. **Choose the business process**  
+   (Sales, Billing, Calls, Claims, etc.)
+2. **Identify the grain**
+3. **Identify the dimensions**
+4. **Identify the facts**
+
+---
+
+#### 3. Fact Table Grain (Granularity)
+The **grain** defines what a **single row** in the fact table represents.
+
+###### Key Points
+- Describes the **physical business event** being measured
+- Controls which dimensions and facts are valid
+- Not always time-based
+- **Best practice:** design at the **lowest possible grain**
+
+##### Example Grains
+- One transaction
+- One call
+- One line item on a bill
+- One process instance
+
+---
+
+### 4. Fact Table Types
+There are **three main types** of fact tables:
+
+---
+
+#### 4.1 Transaction Fact Table
+- **Grain:** one row per transaction
+- New row for every transaction
+- Grows very fast
+- No updates after insert
+
+**Use Cases**
+- Sales transactions
+- Telecom calls
+- Payments
+
+---
+
+#### 4.2 Periodic Snapshot Fact Table
+- One row per entity per **fixed time period**
+- Aggregated from transaction data
+- Loaded periodically (daily, monthly, yearly)
+- Not updated after load
+
+**Use Cases**
+- Daily sales summary
+- Monthly call totals
+- Inventory snapshots
+
+---
+
+#### 4.3 Accumulating Snapshot Fact Table
+- One row represents the **entire lifecycle** of a process
+- Tracks **milestones/stages**
+- Rows are **updated** as stages complete
+- Used to analyze **time between events**
+
+**Use Cases**
+- Order lifecycle
+- Insurance claims processing
+- Hiring process
+
+---
+
+### 5. Fact Table Types Comparison
+
+| Feature | Transaction | Periodic Snapshot | Accumulating Snapshot |
+|------|------------|------------------|----------------------|
+| Grain | One transaction | One time period | Process stages |
+| Date usage | Lowest granularity | End-of-period | Multiple dates |
+| Facts | Transaction metrics | Period aggregates | Lifecycle metrics |
+| Table size | Largest | Medium | Smallest |
+| Updates | No | No | Yes |
+
+---
+
+### 6. Fact Types
+
+#### 6.1 Additive Facts
+- Can be summed across **all dimensions**
+- Most flexible type
+
+**Examples**
+- Sales amount
+- Quantity sold
+- Total cost
+
+---
+
+#### 6.2 Semi-Additive Facts
+- Can be aggregated across **some dimensions but not all**
+- Usually not additive across time
+
+**Examples**
+- Account balance
+- Inventory quantity
+- Headcount
+
+---
+
+#### 6.3 Non-Additive Facts
+- Cannot be summed across any dimension
+- Usually ratios or percentages
+
+**Examples**
+- Profit margin
+- Discount rate
+
+---
+
+#### 6.4 Derived Facts
+- Calculated from other facts
+- May or may not be stored
+
+**Example**
+```text
+Total Sales = Quantity × (Unit Price − Discount)
+```
+#### 6.5 Textual Facts
+- Contain text values (flags, indicators)
+- Should be avoided in fact tables
+- Better placed in dimension tables
+
+#### 6.6 Pseudo Facts
+- Numeric but meaningless when summed
+- Mainly used for counting events
+
+#### 6.7 Factless Fact Tables
+- Contain only foreign keys
+- No numeric facts
+- Used to record events
+
+---
+
+### 7. Identifying Facts
+- Facts must be true to the grain
+- Identified from:
+  - Grain definition
+  - Source E/R models
+  - Line-item analysis
+- Avoid storing Year-To-Date (YTD) facts at atomic grain
+
+---
+
+### 8. Conformed Facts
+- Shared facts across multiple data marts
+- Same definition and calculation logic
+- Enable cross-mart analysis
+
+---
+
+### 9. Year-to-Date (YTD) Facts
+- Aggregated totals from start of year to current date
+- Non-additive
+- Prefer calculating in:
+  - OLAP tools
+  - SQL views
+  - Reporting layer
+
+---
+
+### 10. Event Fact Tables
+- Used to record events (clicks, attendance, logins)
+- Often contain:
+  - Pseudo facts
+  - Or no facts (factless)
+- Mainly used for counting
+
+---
+
+### 11. Composite Primary Key Design
+- Fact tables usually use a composite primary key
+- Built from:
+  - Dimension foreign keys
+  - Degenerate dimensions (e.g., Bill Number)
+- Grain definition determines uniqueness
+
+---
+
+### 12. Fact Table Sizing and Growth
+
+### Business-Based Estimation
+- Based on business volume (e.g., revenue ÷ average price)
+
+### Technical-Based Estimation
+- Based on dimension cardinality and row size
+- Used to estimate maximum growth
+
+---
+
+### 13. Best Practices
+- Always define grain first
+- Design at the lowest possible granularity
+- Prefer additive facts
+- Avoid textual facts
+- Handle YTD and derived facts in reporting layer
+- Validate model with business users
+
+### Schema Types
+
+#### 1. Schema Types Overview
+In **Data Warehousing (DWH)**, schemas define how **fact tables** and **dimension tables** are structured.  
+
+The two most common schema types are:
+
+- **Star Schema** – optimized for simplicity and query performance  
+- **Snowflake Schema** – optimized for storage efficiency and normalization  
+
+Other less common schema types (for context):
+
+- **Galaxy / Fact Constellation Schema** – multiple fact tables sharing dimensions, often used for complex enterprise DWH.  
+- **Constellation Schema** – similar to galaxy, supports multiple business processes in one warehouse.
+
+---
+
+#### 2. Star Schema
+
+##### Definition
+A **Star Schema** is a **central fact table** connected to **denormalized dimension tables**, forming a star-like shape.  
+
+It is **highly intuitive** and widely used in business intelligence.
+
+---
+
+###### Main Characteristics of Star Schema
+
+1. **Simplicity**
+   - Straightforward design
+   - Easy for developers, analysts, and BI tools to understand
+
+2. **Query Effectiveness**
+   - Minimal joins needed for queries
+   - High performance for large datasets  
+   - Ideal for OLAP queries and reporting
+
+3. **Data Redundancy & Storage**
+   - Dimension tables are **de-normalized**, leading to **redundant data**  
+   - Can require **more disk space**  
+   - Updates may be harder due to repeated data
+
+4. **Wide Support**
+   - Most BI tools, ETL pipelines, and reporting frameworks support it natively
+
+---
+
+##### Structural Characteristics
+
+- **Dimensions:** One table per dimension  
+- **Fact Table:** Contains foreign keys and numeric measures  
+- **Joins:** Dimension tables **do not join to each other**  
+- **Data Integrity:** Not strictly enforced, de-normalization can cause inconsistencies  
+
+---
+
+##### Advantages of Star Schema
+- Faster query performance  
+- Easier for non-technical users to understand  
+- Simplifies reporting and dashboards  
+- Good for **data marts** with simple business processes  
+
+##### Disadvantages
+- High data redundancy  
+- Large disk space requirements  
+- Maintenance can be more challenging (updates propagate to multiple rows)
+
+---
+
+##### When to Use Star Schema
+- Simple **1:1** or **1:many** relationships  
+- Datamarts for **sales, finance, or marketing reporting**  
+- Scenarios prioritizing **query speed over storage efficiency**
+
+---
+
+#### 3. Snowflake Schema
+
+##### Definition
+A **Snowflake Schema** is an **extension of the Star Schema**, where **dimension tables are normalized** into multiple related tables.  
+
+This creates a more **complex, hierarchical structure**, often resembling a snowflake.
+
+---
+
+##### Main Characteristics of Snowflake Schema
+
+1. **Normalized Dimensions**
+   - Dimension tables split into multiple related tables  
+   - Reduces data redundancy  
+   - Improves data consistency
+
+2. **Storage Efficiency**
+   - Requires **less disk space**  
+   - Smaller tables can improve certain query operations (less data scanned)
+
+3. **Query Complexity**
+   - Queries require **more joins**  
+   - Slightly slower performance compared to Star Schema  
+
+4. **Maintainability**
+   - Easier to maintain due to normalized structure  
+   - Changes propagate without redundancy issues  
+
+---
+
+##### Structural Characteristics
+
+- Fact table is surrounded by **dimension hierarchies**  
+- Each dimension may expand into **multiple related tables**  
+- Better supports **complex relationships** and large enterprises
+
+---
+
+##### Advantages of Snowflake Schema
+- Low data redundancy  
+- Easier maintenance and updates  
+- Efficient storage usage  
+- Supports **many-to-many relationships**  
+
+##### Disadvantages
+- Slower query performance due to multiple joins  
+- More complex to design and understand  
+- Harder for casual users to write queries manually  
+
+---
+
+##### When to Use Snowflake Schema
+- Core **enterprise data warehouses**  
+- Complex hierarchies and many-to-many relationships  
+- Storage efficiency is critical  
+- OLAP queries that can tolerate additional joins
+
+---
+
+#### 4. Star Schema vs Snowflake Schema (Enhanced)
+
+| Feature | Star Schema | Snowflake Schema |
+|---------|------------|----------------|
+| Dimension Structure | One table per dimension | Multiple normalized tables per dimension |
+| Fact Table | Surrounded by dimension tables | Surrounded by dimension hierarchies |
+| Joins | Few joins | Many joins |
+| Design Complexity | Simple | Complex |
+| Data Structure | De-normalized | Normalized |
+| Data Redundancy | High | Low |
+| Maintenance | More difficult | Easier |
+| Storage Efficiency | Lower | Higher |
+| Query Performance | High | Moderate to low |
+| Best Use Case | Simple datamarts, OLAP | Enterprise DWH, complex relationships |
+
+---
+
+### 5. Additional Notes
+
+### Factless Fact Tables
+- Contain only foreign keys (no numeric measures)  
+- Used to **record events or relationships**  
+
+### Pseudo-Facts
+- Numeric values **not additive** (e.g., counts, flags)  
+- Cannot be summed meaningfully across dimensions  
+
+### Choosing a Schema
+- **Star Schema:** Focus on **query performance**, **simplicity**, and **reporting speed**  
+- **Snowflake Schema:** Focus on **data integrity**, **storage efficiency**, and **maintainability**  
+- Hybrid approach is sometimes used: **star schema for reporting, snowflake for storage**  
+
+### Real-World Example
+- **Retail Data Mart:** Star schema with `Sales_Fact` and dimensions like `Customer`, `Product`, `Time`  
+- **Enterprise DWH:** Snowflake schema with `Product` dimension normalized into `Category` → `Subcategory` → `Product` tables  
+
+---
+
+    
